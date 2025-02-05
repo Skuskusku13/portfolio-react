@@ -2,14 +2,16 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
+
 COPY package.json package-lock.json ./
+
 RUN npm ci --only=production
 
 COPY . .
 RUN npm run build
 
 # Étape 2 : Servir avec Apache (httpd)
-FROM httpd:2.4-alpine
+FROM httpd:2.4
 
 RUN apt update && apt upgrade -y
 
