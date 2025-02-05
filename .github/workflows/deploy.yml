@@ -31,10 +31,10 @@ jobs:
 
       - name: Define server variables
         run: |
-          echo "SSH_HOST=${{ secrets[format('HOST_DLYHUB', inputs.server)] }}" >> $GITHUB_ENV
-          echo "SSH_USER=${{ secrets[format('USER_DLYHUB', inputs.server)] }}" >> $GITHUB_ENV
-          echo "SSH_PORT=${{ secrets[format('PORT_DLYHUB', inputs.server)] }}" >> $GITHUB_ENV
-          echo "SSH_PASS=${{ secrets[format('PASS_DLYHUB', inputs.server)] }}" >> $GITHUB_ENV
+          echo "SSH_HOST=${{ secrets.HOST_DLYHUB }}" >> $GITHUB_ENV
+          echo "SSH_USER=${{ secrets.USER_DLYHUB }}" >> $GITHUB_ENV
+          echo "SSH_PORT=${{ secrets.PORT_DLYHUB }}" >> $GITHUB_ENV
+          echo "SSH_PASS=${{ secrets.PASS_DLYHUB }}" >> $GITHUB_ENV
 
       - name: Deploy to selected server
         uses: appleboy/ssh-action@v1.2.0

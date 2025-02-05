@@ -1,11 +1,11 @@
 # Étape 1 : Build de l'application React avec Node.js
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN npm ci --only=production
+RUN npm install
 
 COPY . .
 RUN npm run build
