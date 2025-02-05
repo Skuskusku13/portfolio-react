@@ -13,9 +13,10 @@ on:
           - staging
           - dev
       container:
-        description: "Nom du service Docker à redémarrer"
+        description: "Nom du service Docker à redémarrer : "
         required: true
         default: "portfolio"
+
 
 jobs:
   deploy:
@@ -51,7 +52,7 @@ jobs:
             fi
             
             cd ~/projects
-            mv portfolio portfolio_test
+            mv portfolio portfolio_test || echo 'plus là'
             git clone https://github.com/Skuskusku13/portfolio-react.git portfolio
             
             if [ ! -d ~/my-docker ]; then
@@ -62,13 +63,13 @@ jobs:
             cd ~/my-docker
 
             echo "Arrêt du conteneur: ${{ inputs.container }}"
-            docker compose stop ${{ inputs.container }}
+            docker compose stop portfolio
             echo $?
 
             echo "Rebuild de l’image: ${{ inputs.container }}"
-            docker compose build ${{ inputs.container }} --no-cache
+            docker compose build portfolio --no-cache
             echo $?
 
             echo "Relance du conteneur: ${{ inputs.container }}"
-            docker compose up -d --force-recreate ${{ inputs.container }}
+            docker compose up -d --force-recreate portoflio
             echo $?
