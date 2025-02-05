@@ -1,3 +1,6 @@
+Launch ACT
+act -j deploy -e event.json -s .secrets
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
