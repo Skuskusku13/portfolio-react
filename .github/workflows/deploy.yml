@@ -1,0 +1,60 @@
+name: Manual Deploy React App to Docker
+
+on:
+  workflow_dispatch:
+    inputs:
+      server:
+        description: "Choisir le serveur de déploiement"
+        required: true
+        default: "prod"
+        type: choice
+        options:
+          - prod
+          - staging
+          - dev
+      container:
+        description: "Nom du service Docker à redémarrer"
+        required: true
+        default: "web"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Define server variables
+        run: |
+          echo "SSH_HOST=${{ secrets[format('HOST_DLYUHB', inputs.server)] }}" >> $GITHUB_ENV
+          echo "SSH_USER=${{ secrets[format('USER_DLYHUB', inputs.server)] }}" >> $GITHUB_ENV
+          echo "SSH_PORT=${{ secrets[format('PORT_DLYHUB', inputs.server)] }}" >> $GITHUB_ENV
+
+      - name: Deploy to selected server
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          port: ${{ env.SSH_PORT }}
+          script: |
+            set -e  # Arrête le script en cas d'erreur
+
+            if [ ! -d ~/my-docker ]; then
+              echo "Le dossier ~/my-docker n'existe pas !" >&2
+              exit 1
+            fi
+
+            cd ~/my-docker
+
+            echo "Arrêt du conteneur: ${{ inputs.container }}"
+            docker compose stop ${{ inputs.container }}
+
+            echo "Rebuild de l’image: ${{ inputs.container }}"
+            docker compose build ${{ inputs.container }}
+
+            echo "Relance du conteneur: ${{ inputs.container }}"
+            docker compose up -d --force-recreate ${{ inputs.container }}
