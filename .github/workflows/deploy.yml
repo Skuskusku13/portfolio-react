@@ -15,7 +15,7 @@ on:
       container:
         description: "Nom du service Docker à redémarrer"
         required: true
-        default: "web"
+        default: "portfolio"
 
 jobs:
   deploy:
@@ -30,18 +30,35 @@ jobs:
 
       - name: Define server variables
         run: |
-          echo "SSH_HOST=${{ secrets[format('HOST_DLYUHB', inputs.server)] }}" >> $GITHUB_ENV
-          echo "SSH_USER=${{ secrets[format('USER_DLYHUB', inputs.server)] }}" >> $GITHUB_ENV
-          echo "SSH_PORT=${{ secrets[format('PORT_DLYHUB', inputs.server)] }}" >> $GITHUB_ENV
+          echo "SERVER=${{ inputs.server }}" >> $GITHUB_ENV
+
+      - name: Define server variables
+        run: |
+          echo "Je suis ici"
+          echo "SSH_HOST=${{ secrets.HOST_DLYHUB }}" >> $GITHUB_ENV
+          echo "SSH_USER=${{ secrets.USER_DLYHUB }}" >> $GITHUB_ENV
+          echo "SSH_PORT=${{ secrets.PORT_DLYHUB }}" >> $GITHUB_ENV
+          echo "SSH_PASS=${{ secrets.PASS_DLYHUB }}" >> $GITHUB_ENV
 
       - name: Deploy to selected server
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
+          password: ${{ env.SSH_PASS }}
           port: ${{ env.SSH_PORT }}
           script: |
             set -e  # Arrête le script en cas d'erreur
+
+            if [ ! -d ~/projects ]; then
+              echo "Le dossier ~/projects n'existe pas !" >&2
+              exit 1
+            fi
+            
+            echo "Mise a jour du  repo sur le serveur"
+            cd ~/projects/
+            mv portfolio portfolio_test
+            git clone git@github.com:Skuskusku13/portfolio-react.git portfolio
 
             if [ ! -d ~/my-docker ]; then
               echo "Le dossier ~/my-docker n'existe pas !" >&2
@@ -54,7 +71,7 @@ jobs:
             docker compose stop ${{ inputs.container }}
 
             echo "Rebuild de l’image: ${{ inputs.container }}"
-            docker compose build ${{ inputs.container }}
+            docker compose build ${{ inputs.container }} --no-cache
 
             echo "Relance du conteneur: ${{ inputs.container }}"
             docker compose up -d --force-recreate ${{ inputs.container }}

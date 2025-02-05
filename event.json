@@ -1,6 +1,6 @@
 {
   "inputs": {
     "server": "dev",
-    "container": "web"
+    "container": "portfolio"
   }
 }
