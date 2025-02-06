@@ -13,10 +13,12 @@ on:
           - staging
           - dev
       container:
-        description: "Nom du service Docker à redémarrer : "
+        description: "Nom du service Docker à redémarrer"
         required: true
-        default: "portfolio"
-
+        type: choice
+        options:
+          - portfolio
+          - portfolio_old
 
 jobs:
   deploy:
@@ -29,14 +31,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Install WireGuard
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wireguard-tools
+
+      - name: Configure and Connect to WireGuard VPN
+        run: |
+          echo "${{ secrets.WG_CONF }}" | sudo tee /etc/wireguard/wg0.conf > /dev/null
+          sudo chmod 600 /etc/wireguard/wg0.conf
+          sudo wg-quick up wg0
+        shell: bash
+
       - name: Define server variables
         run: |
           echo "SSH_HOST=${{ secrets.HOST_DLYHUB }}" >> $GITHUB_ENV
           echo "SSH_USER=${{ secrets.USER_DLYHUB }}" >> $GITHUB_ENV
           echo "SSH_PORT=${{ secrets.PORT_DLYHUB }}" >> $GITHUB_ENV
           echo "SSH_PASS=${{ secrets.PASS_DLYHUB }}" >> $GITHUB_ENV
+#          echo "SSH_HOST=${{ secrets[format('HOST_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
+#          echo "SSH_USER=${{ secrets[format('USER_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
+#          echo "SSH_PORT=${{ secrets[format('PORT_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
+#          echo "SSH_PASS=${{ secrets[format('PASS_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
 
-      - name: Deploy to selected server
+      - name: Deploy to selected server via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ env.SSH_HOST }}
@@ -63,13 +81,19 @@ jobs:
             cd ~/my-docker
 
             echo "Arrêt du conteneur: ${{ inputs.container }}"
-            docker compose stop portfolio
+            docker compose stop ${{ inputs.container }}
             echo $?
 
             echo "Rebuild de l’image: ${{ inputs.container }}"
-            docker compose build portfolio --no-cache
+            docker compose build ${{ inputs.container }} --no-cache
             echo $?
 
             echo "Relance du conteneur: ${{ inputs.container }}"
-            docker compose up -d --force-recreate portoflio
+            docker compose up -d --force-recreate ${{ inputs.container }}
             echo $?
+
+      - name: Disconnect from WireGuard VPN
+        if: always()
+        run: |
+          sudo wg-quick down wg0
+        shell: bash
