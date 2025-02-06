@@ -36,25 +36,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wireguard-tools
 
-      - name: Debug secrets
-        env:
-          host: ${{ secrets.HOST_DLYHUB }}
-          username: ${{ secrets.USER_DLYHUB }}
-          password: ${{ secrets.PASS_DLYHUB }}
-          port: ${{ secrets.PORT_DLYHUB }}
-
-        run: |
-          if [[ -z "${{ secrets.HOST_DLYHUB }}" ]]; then
-          echo "❌ SECRET HOST_DLYHUB NON TROUVÉ"
-          else
-          echo "✅ SECRET HOST_DLYHUB EST DÉFINI"
-          fi
-
       - name: Configure and Connect to WireGuard VPN
         run: |
           echo "${{ secrets.WG_CONF }}" | sudo tee /etc/wireguard/wg0.conf > /dev/null
           sudo chmod 600 /etc/wireguard/wg0.conf
           sudo wg-quick up wg0
+        shell: bash
+
+      - name: ifconfig.me
+        run: |
+          curl ifconfig.me
         shell: bash
 
       - name: Test VPN connection
@@ -80,8 +71,7 @@ jobs:
 
       - name: Deploy to selected server via SSH
         uses: appleboy/ssh-action@v1.2.0
-#        with:
-        env:
+        with:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           password: ${{ env.SSH_PASS }}
