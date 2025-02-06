@@ -43,12 +43,22 @@ jobs:
           sudo wg-quick up wg0
         shell: bash
 
+      - name: Test VPN connection
+        run: ip a
+
       - name: Define server variables
         run: |
           echo "SSH_HOST=${{ secrets.HOST_DLYHUB }}" >> $GITHUB_ENV
           echo "SSH_USER=${{ secrets.USER_DLYHUB }}" >> $GITHUB_ENV
           echo "SSH_PORT=${{ secrets.PORT_DLYHUB }}" >> $GITHUB_ENV
           echo "SSH_PASS=${{ secrets.PASS_DLYHUB }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Debug secrets
+        run: |
+          echo "SSH_HOST is set? [${{ secrets.HOST_DLYHUB != '' }}]"
+          echo "SSH_USER is set? [${{ secrets.USER_DLYHUB != '' }}]"
+
 #          echo "SSH_HOST=${{ secrets[format('HOST_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
 #          echo "SSH_USER=${{ secrets[format('USER_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
 #          echo "SSH_PORT=${{ secrets[format('PORT_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
