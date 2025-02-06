@@ -48,9 +48,6 @@ jobs:
           curl ifconfig.me
         shell: bash
 
-      - name: Test VPN connection
-        run: ip a
-
       - name: Define server variables
         run: |
           echo "SSH_HOST=${{ secrets.HOST_DLYHUB }}" >> $GITHUB_ENV
@@ -63,11 +60,6 @@ jobs:
         run: |
           echo "SSH_HOST is set? [${{ secrets.HOST_DLYHUB != '' }}]"
           echo "SSH_USER is set? [${{ secrets.USER_DLYHUB != '' }}]"
-
-#          echo "SSH_HOST=${{ secrets[format('HOST_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
-#          echo "SSH_USER=${{ secrets[format('USER_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
-#          echo "SSH_PORT=${{ secrets[format('PORT_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
-#          echo "SSH_PASS=${{ secrets[format('PASS_DLYHUB_{0}', inputs.server)] }}" >> $GITHUB_ENV
 
       - name: Deploy to selected server via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -85,8 +77,13 @@ jobs:
             fi
             
             cd ~/projects
-            mv portfolio portfolio_test || echo 'plus là'
-            git clone https://github.com/Skuskusku13/portfolio-react.git portfolio
+             if [ ! -d portfolio ]; then
+                echo "projet cloné"
+                git clone https://github.com/Skuskusku13/portfolio-react.git portfolio
+            else
+                cd portfolio
+                git pull origin main
+            fi
             
             if [ ! -d ~/my-docker ]; then
               echo "Le dossier ~/my-docker n'existe pas !" >&2
