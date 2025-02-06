@@ -8,6 +8,7 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
+
 RUN npm run build
 
 # Étape 2 : Servir avec Apache (httpd)
