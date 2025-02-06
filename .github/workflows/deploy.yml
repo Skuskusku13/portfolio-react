@@ -43,11 +43,6 @@ jobs:
           sudo wg-quick up wg0
         shell: bash
 
-      - name: ifconfig.me
-        run: |
-          curl ifconfig.me
-        shell: bash
-
       - name: Define server variables
         run: |
           echo "SSH_HOST=${{ secrets.HOST_DLYHUB }}" >> $GITHUB_ENV
@@ -55,11 +50,6 @@ jobs:
           echo "SSH_PORT=${{ secrets.PORT_DLYHUB }}" >> $GITHUB_ENV
           echo "SSH_PASS=${{ secrets.PASS_DLYHUB }}" >> $GITHUB_ENV
         shell: bash
-
-      - name: Debug secrets
-        run: |
-          echo "SSH_HOST is set? [${{ secrets.HOST_DLYHUB != '' }}]"
-          echo "SSH_USER is set? [${{ secrets.USER_DLYHUB != '' }}]"
 
       - name: Deploy to selected server via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -91,10 +81,6 @@ jobs:
             fi
 
             cd ~/my-docker
-
-            echo "Arrêt du conteneur: ${{ inputs.container }}"
-            docker compose stop ${{ inputs.container }}
-            echo $?
 
             echo "Rebuild de l’image: ${{ inputs.container }}"
             docker compose build ${{ inputs.container }} --no-cache
