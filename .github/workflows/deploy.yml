@@ -36,6 +36,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wireguard-tools
 
+      - name: Debug secrets
+        run: |
+          if [[ -z "${{ secrets.HOST_DLYHUB }}" ]]; then
+          echo "❌ SECRET HOST_DLYHUB NON TROUVÉ"
+          else
+          echo "✅ SECRET HOST_DLYHUB EST DÉFINI"
+          fi
+
       - name: Configure and Connect to WireGuard VPN
         run: |
           echo "${{ secrets.WG_CONF }}" | sudo tee /etc/wireguard/wg0.conf > /dev/null
