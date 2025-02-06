@@ -37,6 +37,12 @@ jobs:
           sudo apt-get install -y wireguard-tools
 
       - name: Debug secrets
+        env:
+          host: ${{ secrets.HOST_DLYHUB }}
+          username: ${{ secrets.USER_DLYHUB }}
+          password: ${{ secrets.PASS_DLYHUB }}
+          port: ${{ secrets.PORT_DLYHUB }}
+
         run: |
           if [[ -z "${{ secrets.HOST_DLYHUB }}" ]]; then
           echo "❌ SECRET HOST_DLYHUB NON TROUVÉ"
@@ -74,7 +80,8 @@ jobs:
 
       - name: Deploy to selected server via SSH
         uses: appleboy/ssh-action@v1.2.0
-        with:
+#        with:
+        env:
           host: ${{ env.SSH_HOST }}
           username: ${{ env.SSH_USER }}
           password: ${{ env.SSH_PASS }}
