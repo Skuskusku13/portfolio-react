@@ -14,6 +14,8 @@ RUN npm run build
 # Étape 2 : Servir avec Apache (httpd)
 FROM httpd:2.4
 
+WORKDIR /usr/local/apache2/htdocs/
+
 ENV APACHE_LOG_DIR=/var/log/apache2
 
 # Copier la configuration du VirtualHost
